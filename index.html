@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Smart Meter Global Dashboard</title>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <style>
+        body { font-family: 'Arial', sans-serif; background: #0f172a; color: white; text-align: center; padding: 20px; }
+        .grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
+        .card { background: #1e293b; padding: 20px; border-radius: 15px; width: 250px; border: 1px solid #334155; }
+        .val { font-size: 32px; font-weight: bold; color: #38bdf8; display: block; margin: 10px 0; }
+        .btn { padding: 20px 60px; font-size: 18px; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; margin-top: 30px; transition: 0.3s; }
+        .on { background: #ef4444; color: white; }
+        .off { background: #22c55e; color: white; }
+    </style>
+</head>
+<body>
+    <h1>Smart Energy Meter</h1>
+    <div class="grid">
+        <div class="card">POWER<span id="p" class="val">0</span>Watts</div>
+        <div class="card">UNITS<span id="e" class="val">0</span>kWh</div>
+        <div class="card">BILL<span id="c" class="val">0</span>INR</div>
+    </div>
+    
+    <button id="btn" class="btn" onclick="toggle()">LOADING...</button>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyD2Sj87vpGduwLTe8FDQMtE4BCGIfRoZnw",
+            databaseURL: "https://energy-meter-88e00-default-rtdb.firebaseio.com/"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database().ref('/Meter');
+        let state = true;
+
+        db.on('value', (s) => {
+            const d = s.val();
+            document.getElementById('p').innerText = d.Power.toFixed(1);
+            document.getElementById('e').innerText = d.Energy.toFixed(4);
+            document.getElementById('c').innerText = d.Cost.toFixed(2);
+            state = d.Switch;
+            const b = document.getElementById('btn');
+            b.innerText = state ? "CUT POWER (OFF)" : "RESTORE POWER (ON)";
+            b.className = state ? "btn on" : "btn off";
+        });
+
+        function toggle() { db.update({ "Switch": !state }); }
+    </script>
+</body>
+</html>
